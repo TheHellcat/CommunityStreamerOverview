@@ -1,0 +1,6 @@
+services:
+
+    service_streamer:
+        class: AppBundle\Service\Overview\Streamer
+        arguments:
+            - '@hellcat_twitch_api'

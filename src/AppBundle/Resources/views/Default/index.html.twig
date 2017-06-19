@@ -1,0 +1,13 @@
+{% extends "::base.html.twig" %}
+{% block body %}
+    <pre>
+
+        Hier sind die Daten der Streamer:
+
+        {% for streamerName, streamerDetails in streamerData %}
+            - {{ streamerName }}: {% if streamerDetails.isLive %}<em>LIVE</em> - <strong>Spiel:</strong> {{ streamerDetails.data.stream.game }}{% else %}<strong>OFFLINE</strong>{% endif %}
+
+        {% endfor %}
+
+    </pre>
+{% endblock %}
