@@ -1,0 +1,12 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+
+    {% if success %}
+        <strong>Prima, Du bist dabei!</strong>
+    {% else %}
+        <em>Hups, da ist was schief gegangen:</em><br>
+        <strong>{{ message }}</strong>
+    {% endif %}
+
+{% endblock %}

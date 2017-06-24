@@ -92,6 +92,7 @@ class Auth
      */
     public function fetchToken($code, $localAuthUrl, $localUserId = '')
     {
+dump($code);dump($localAuthUrl);
         $twitchToken = $this->twitchApi->auth()->fetchToken($code, $localAuthUrl);
         $twitchUserData = $this->twitchApi->auth()->getUserData($twitchToken->getAccessToken());
 

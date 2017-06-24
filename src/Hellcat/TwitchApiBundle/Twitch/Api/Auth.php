@@ -39,15 +39,7 @@ class Auth extends ApiBaseClass
         $apiCall = '/oauth2/authorize';
 
         $scopes = [
-            'user_read',
-            'user_blocks_edit',
-            'user_blocks_read',
-            'channel_read',
-            'channel_editor',
-            'channel_commercial',
-            'channel_subscriptions',
-            'channel_check_subscription',
-            'chat_login'
+            'user_read'
         ];
 
         $query = [

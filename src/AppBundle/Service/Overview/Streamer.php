@@ -2,8 +2,12 @@
 
 namespace AppBundle\Service\Overview;
 
+use Doctrine\Bundle\DoctrineBundle\Registry as DoctrineRegistry;
+use Doctrine\Common\Persistence\ObjectManager as DoctrineManager;
 use Hellcat\TwitchApiBundle\Twitch\Twitch;
 use Hellcat\TwitchApiBundle\Model\Twitch\Response\Stream\StreamResponse;
+use AppBundle\Entity\TwitchChannels as TwitchChannelsEntity;
+use Hellcat\TwitchApiBundle\Model\Twitch\User\User as TwitchUserData;
 
 /**
  * Class Streamer
@@ -17,12 +21,28 @@ class Streamer
     private $twitchApi;
 
     /**
+     * @var DoctrineRegistry
+     */
+    private $doctrine;
+
+    /**
+     * @var DoctrineManager
+     */
+    private $dbManager;
+
+    /**
      * Streamer constructor.
      * @param Twitch $twitch
+     * @param DoctrineRegistry $doctrine
      */
-    public function __construct(Twitch $twitch)
+    public function __construct(
+        Twitch $twitch,
+        DoctrineRegistry $doctrine
+    )
     {
         $this->twitchApi = $twitch->api();
+        $this->doctrine = $doctrine;
+        $this->dbManager = $this->doctrine->getManager();
     }
 
     /**
@@ -30,36 +50,61 @@ class Streamer
      */
     public function getCommunityStreamers()
     {
-        $streamers = [
-            'TheRealHellcat',
-            'pixel_maniacs',
-            'Cirdan77',
-            'Niels_Boehm',
-            'gronkh'
-        ];
+        $twitchUsers = $this->dbManager->getRepository(TwitchChannelsEntity::class)->findAll();
+
+        // TODO: This has to be done properly, only for now and getting things done at all
+        if( null === $twitchUsers ) {
+            throw new \Exception(__METHOD__ . ': Something during our DB query went horribly wrong!!!');
+        }
 
         $streamerData = [];
 
-        foreach ($streamers as $streamer) {
+        foreach ($twitchUsers as $streamer) {
             /** @var StreamResponse $streamData */
             $streamData = $this->fetchStreamData($streamer);
             $streamerDetails = [];
             $streamerDetails['isLive'] = null !== $streamData->getStream();
             $streamerDetails['data'] = $streamData;
-            $streamerData[$streamer] = $streamerDetails;
+            $streamerData[$streamer->getChannelName()] = $streamerDetails;
         }
+
+        $this->dbManager->flush();
 
         return $streamerData;
     }
 
     /**
-     * @param $channelName
+     * @param TwitchChannelsEntity $channelName
      * @return StreamResponse
      */
-    private function fetchStreamData($channelName)
+    private function fetchStreamData(TwitchChannelsEntity $twitchUser)
     {
-        $userData = $this->twitchApi->users()->getUserByName($channelName);
+        if( (null === $twitchUser->getTwitchUserId()) || (strlen($twitchUser->getTwitchUserId()) == 0) ) {
+            $userData = $this->twitchApi->users()->getUserByName($twitchUser->getChannelName());
+            $userId = $userData->getUsers()->first()->getId();
 
-        return $this->twitchApi->streams()->getStreamByUser($userData->getUsers()->first()->getId());
+            $twitchUser->setTwitchUserId($userId);
+            $this->dbManager->persist($twitchUser);
+        } else {
+            $userId = $twitchUser->getTwitchUserId();
+        }
+
+        return $this->twitchApi->streams()->getStreamByUser($userId);
+    }
+
+    /**
+     * @param TwitchUserData $twitchUser
+     */
+    public function addStreamer(TwitchUserData $twitchUser)
+    {
+        $newUser = new TwitchChannelsEntity();
+
+        $newUser
+            ->setChannelName($twitchUser->getDisplayName())
+            ->setTwitchUserId($twitchUser->getUserId())
+            ->setAdded(time());
+
+        $this->dbManager->persist($newUser);
+        $this->dbManager->flush();
     }
 }
