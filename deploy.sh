@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$SYMFONY_ENV" == "hcwww2" ]; then
+   sed -i 's#"symfony/symfony": "3.3.*"#"symfony/symfony": "3.2.*"#g' composer.json
+   php composer.phar update
+fi
+
 php composer.phar install
 
 rm -Rf var/cache/*

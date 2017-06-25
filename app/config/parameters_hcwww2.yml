@@ -10,3 +10,5 @@ parameters:
     mailer_user: null
     mailer_password: null
     secret: 589b695cc6c2abce2508ffd062710ccb59b69913
+
+    kernel.project_dir: "%kernel.root_dir%"
