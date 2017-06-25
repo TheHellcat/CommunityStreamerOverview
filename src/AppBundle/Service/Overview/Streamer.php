@@ -97,6 +97,7 @@ class Streamer
      */
     public function addStreamer(TwitchUserData $twitchUser)
     {
+        // TODO: add only if user doesn't exist already
         $newUser = new TwitchChannelsEntity();
 
         $newUser

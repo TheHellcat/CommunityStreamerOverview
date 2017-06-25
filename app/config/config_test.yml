@@ -14,3 +14,8 @@ web_profiler:
 
 swiftmailer:
     disable_delivery: true
+
+hellcat_twitch_api:
+    api_endpoint_root: https://api.twitch.tv/kraken
+    client_id: ""
+    client_secret: ""

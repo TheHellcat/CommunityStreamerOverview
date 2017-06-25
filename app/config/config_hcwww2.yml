@@ -1,6 +1,6 @@
 imports:
     - { resource: config.yml }
-    - { resource: parameters_dev.yml }
+    - { resource: parameters_hcwww2.yml }
 
 framework:
     router:
@@ -43,5 +43,5 @@ monolog:
 
 hellcat_twitch_api:
     api_endpoint_root: https://api.twitch.tv/kraken
-    client_id: ""
-    client_secret: ""
+    client_id: "%strovw_twitch_api_client_id%"
+    client_secret: "%strovw_twitch_api_secret%"
