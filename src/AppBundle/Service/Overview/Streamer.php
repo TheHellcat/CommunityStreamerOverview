@@ -8,6 +8,7 @@ use Hellcat\TwitchApiBundle\Twitch\Twitch;
 use Hellcat\TwitchApiBundle\Model\Twitch\Response\Stream\StreamResponse;
 use AppBundle\Entity\TwitchChannels as TwitchChannelsEntity;
 use Hellcat\TwitchApiBundle\Model\Twitch\User\User as TwitchUserData;
+use Hellcat\TwitchApiBundle\Model\Twitch\Response\User\UserResponse as TwitchUserResponse;
 
 /**
  * Class Streamer
@@ -65,12 +66,26 @@ class Streamer
             $streamerDetails = [];
             $streamerDetails['isLive'] = null !== $streamData->getStream();
             $streamerDetails['data'] = $streamData;
+            $streamerDetails['profile'] = $this->fetchProfileData($streamer->getChannelName());
+//            $streamerDetails['profile'] = $this->fetchProfileData($streamer->getTwitchUserId());
             $streamerData[$streamer->getChannelName()] = $streamerDetails;
         }
 
         $this->dbManager->flush();
 
         return $streamerData;
+    }
+
+    /**
+     * @param string $username
+     * @return TwitchUserResponse
+     */
+    private function fetchProfileData($username)
+    {
+        // TODO: maybe change to get user by ID
+        // TODO: cache profile data for 24h
+        return $this->twitchApi->users()->getUserByName($username)
+            ->getUsers()->first();
     }
 
     /**

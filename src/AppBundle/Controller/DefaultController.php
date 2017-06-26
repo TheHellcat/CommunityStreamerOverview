@@ -18,8 +18,7 @@ class DefaultController extends Controller
         $streamerService = $this->get('service_streamer');
 
         $streamerData = $streamerService->getCommunityStreamers();
-
-        dump($streamerData);
+dump($streamerData);
 
         return [
             'streamerData' => $streamerData
@@ -38,11 +37,13 @@ class DefaultController extends Controller
         $success = false;
         $message = '';
 
-        $redirUrl = 'http://live.hellcat.net/twitch-manager/auth.php'; //$this->generateUrl('twitch_auth');
+//        $redirUrl = 'http://live.hellcat.net/twitch-manager/auth.php'; //$this->generateUrl('twitch_auth');
+        $redirUrl = $request->getSchemeAndHttpHost() . $this->generateUrl('app_streamer_add');
 
         if ($request->query->has('code')) {
+            // TODO: try/catch this and handle possible API call errors
             $twitchUserData = $twitchAuth->fetchToken($request->query->get('code', ''), $redirUrl);
-            $streamerData = $streamerService->addStreamer($twitchUserData);
+            $streamerService->addStreamer($twitchUserData);
             $success = true;
         } else if ($request->query->has('error')) {
             $message = $request->query->get('error_description', 'keiner weiss was....');
