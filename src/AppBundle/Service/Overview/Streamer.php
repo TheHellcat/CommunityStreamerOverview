@@ -9,6 +9,7 @@ use Hellcat\TwitchApiBundle\Model\Twitch\Response\Stream\StreamResponse;
 use AppBundle\Entity\TwitchChannels as TwitchChannelsEntity;
 use Hellcat\TwitchApiBundle\Model\Twitch\User\User as TwitchUserData;
 use Hellcat\TwitchApiBundle\Model\Twitch\Response\User\UserResponse as TwitchUserResponse;
+use Hellcat\TwitchApiBundle\Model\Twitch\Response\Stream\StreamType;
 
 /**
  * Class Streamer
@@ -54,12 +55,14 @@ class Streamer
         $twitchUsers = $this->dbManager->getRepository(TwitchChannelsEntity::class)->findAll();
 
         // TODO: This has to be done properly, only for now and getting things done at all
-        if( null === $twitchUsers ) {
+        if (null === $twitchUsers) {
             throw new \Exception(__METHOD__ . ': Something during our DB query went horribly wrong!!!');
         }
 
-        $streamerData = [];
+        $streamerDataLive = [];
+        $streamerDataOffline = [];
 
+        /** @var TwitchChannelsEntity $streamer */
         foreach ($twitchUsers as $streamer) {
             /** @var StreamResponse $streamData */
             $streamData = $this->fetchStreamData($streamer);
@@ -68,12 +71,54 @@ class Streamer
             $streamerDetails['data'] = $streamData;
             $streamerDetails['profile'] = $this->fetchProfileData($streamer->getChannelName());
 //            $streamerDetails['profile'] = $this->fetchProfileData($streamer->getTwitchUserId());
-            $streamerData[$streamer->getChannelName()] = $streamerDetails;
+            $streamerDetails['uptime'] = null === $streamData->getStream() ? '0m' : $this->calcUptime($streamData->getStream());
+            if($streamerDetails['isLive']) {
+                $streamerDataLive[strtolower($streamer->getChannelName())] = $streamerDetails;
+            } else {
+                $streamerDataOffline[strtolower($streamer->getChannelName())] = $streamerDetails;
+            }
         }
 
         $this->dbManager->flush();
 
-        return $streamerData;
+        ksort($streamerDataLive);
+        ksort($streamerDataOffline);
+        return array_merge($streamerDataLive, $streamerDataOffline);
+    }
+
+    /**
+     * @param StreamType $streamData
+     * @return string
+     */
+    private function calcUptime(StreamType $streamData)
+    {
+        // get some nice datetime objects
+        $startDate = new \DateTime($streamData->getCreatedAt());
+        $now = new \DateTime();
+
+        // make sure they're in the same timezone
+        $startDate->setTimezone(new \DateTimeZone('Z'));
+        $now->setTimezone(new \DateTimeZone('Z'));
+
+        // and in the end, it all boils down to unix timestamps again.... xD
+        $upSeconds = $now->getTimestamp() - $startDate->getTimestamp();
+
+        // make the bare seconds into something more readably nice
+        $mins = ($upSeconds - ($upSeconds % 60)) / 60;  // looking weird? yeah, it's a mathematical perfect way of getting
+                                                        // a guaranteed "integer" without needing to cast and having weird
+                                                        // side effects / wrong numbers due to roundings or other things
+                                                        // a cast from float/double to integer may cause.
+        // some more simple number juggling to get hours and minutes
+        $minsR = $mins % 60;
+        $minsH = $mins - ($minsR);
+        $hours = $minsH / 60;
+        if ($hours > 0) {
+            $uptime = $hours . 'h ' . $minsR . 'm';
+        } else {
+            $uptime = $minsR . 'm';
+        }
+
+        return $uptime;
     }
 
     /**
@@ -94,7 +139,7 @@ class Streamer
      */
     private function fetchStreamData(TwitchChannelsEntity $twitchUser)
     {
-        if( (null === $twitchUser->getTwitchUserId()) || (strlen($twitchUser->getTwitchUserId()) == 0) ) {
+        if ((null === $twitchUser->getTwitchUserId()) || (strlen($twitchUser->getTwitchUserId()) == 0)) {
             $userData = $this->twitchApi->users()->getUserByName($twitchUser->getChannelName());
             $userId = $userData->getUsers()->first()->getId();
 

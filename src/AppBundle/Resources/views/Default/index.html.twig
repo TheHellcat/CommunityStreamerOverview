@@ -1,97 +1,98 @@
 {% extends "::base.html.twig" %}
 
 {% block body %}
-    {#<pre>#}
-
-    {#<a href="{{ path('app_streamer_add') }}">Hinzuf&uuml;gen</a>#}
-
-    {#Hier sind die Daten der Streamer:#}
-
-    {#{% for streamerName, streamerDetails in streamerData %}#}
-    {#- {{ streamerName }}: {% if streamerDetails.isLive %}<em>LIVE</em> - <strong>Spiel:</strong> {{ streamerDetails.data.stream.game }}{% else %}<strong>OFFLINE</strong>{% endif %}#}
-
-    {#{% endfor %}#}
-
-    {#</pre>#}
 
     <div class="container">
         <div class="row">
 
+            {% set i = 0 %}
             {% for streamerName, streamerDetails in streamerData %}
 
-                <div class="col-md-4">
-                    <div class="panel panel-primary dropshadow">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">{{ streamerName }}</h3>
-                        </div>
-                        <div class="panel-body">
+            <div class="col-md-4">
+                <div class="panel panel-primary dropshadow">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">{{ streamerDetails.profile.displayName }}</h3>
+                    </div>
+                    <div class="panel-body">
 
-                            <div class="row">
-                                <div class="liveindicator">
+                        <div class="row">
+                            <div class="liveindicator">
+                                <br>
+                                {% if streamerDetails.isLive %}
+                                    <span class="label label-success" style="font-size: 16px;">LIVE</span>&nbsp;&nbsp;
+                                    <span class="badge">{{ streamerDetails.data.stream.viewers }}</span>
                                     <br>
-                                    {% if streamerDetails.isLive %}
-                                        <span class="label label-success" style="font-size: 16px;">LIVE</span>&nbsp;&nbsp;<span class="badge">{{ streamerDetails.data.stream.viewers }}</span>
-                                        <br>
-                                        <em>{{ streamerDetails.data.stream.createdAt }}</em>
-                                    {% else %}
-                                        <span class="label label-danger" style="font-size: 16px;">OFFLINE</span>
-                                        <br><br>
-                                    {% endif %}
-                                </div>
-                                <div class="col-lg-5 col-xs-6">
-                                    <img src="{{ streamerDetails.profile.logo }}" class="img-responsive dropshadow profileimg">
-                                </div>
-                                <div class="col-lg-7 col-xs-12">
-                                    {% if streamerDetails.isLive %}
-                                        <br>
-                                        <span class="small"><strong>Playing:</strong></span>
-                                        <br>
-                                        {{ streamerDetails.data.stream.channel.game }}
-                                    {% endif %}
-                                </div>
+                                    <em>{{ streamerDetails.uptime }}</em>
+                                {% else %}
+                                    <span class="label label-danger" style="font-size: 16px;">OFFLINE</span>
+                                    <br><br>
+                                {% endif %}
                             </div>
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    {% if streamerDetails.isLive %}
-                                        <br>
-                                        <strong>{{ streamerDetails.data.stream.channel.status }}</strong>
-                                        <br><br>
-                                    {% endif %}
-                                </div>
+                            <div class="col-lg-5 col-xs-6">
+                                <img src="{{ streamerDetails.profile.logo }}"
+                                     class="img-responsive dropshadow profileimg">
                             </div>
-                            <div class="row">
-                                <div class="col-xs-8 col-xs-offset-2">
-                                    <a class="btn btn-info btn-block" href="https://www.twitch.tv/{{ streamerDetails.profile.name }}" target="_blank">Go to Channel</a>
+                            <div class="col-lg-7 col-xs-12">
+                                {% if streamerDetails.isLive %}
                                     <br>
-                                </div>
+                                    <span class="small"><strong>Playing:</strong></span>
+                                    <br>
+                                    {{ streamerDetails.data.stream.channel.game }}
+                                {% endif %}
                             </div>
-                            <div class="row">
-                                <div class="col-xs-12 text-center">
-                                    {% if streamerDetails.isLive %}
-                                        <img src="{{ streamerDetails.data.stream.preview.medium }}" class="img-thumbnail img-responsive previewimg glow">
-                                        <br><br>
-                                    {% endif %}
-                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                {% if streamerDetails.isLive %}
+                                    <br>
+                                    <strong>{{ streamerDetails.data.stream.channel.status }}</strong>
+                                    <br><br>
+                                {% endif %}
                             </div>
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            <h3 class="panel-title">Bio / Info</h3>
-                                        </div>
-                                        <div class="panel-body">
-                                            <span class="small">{{ streamerDetails.profile.bio }}</span>
-                                        </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-8 col-xs-offset-2">
+                                <a class="btn btn-info btn-block"
+                                   href="https://www.twitch.tv/{{ streamerDetails.profile.name }}" target="_blank">Go to
+                                    Channel</a>
+                                <br>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 text-center">
+                                {% if streamerDetails.isLive %}
+                                    <img src="{{ streamerDetails.data.stream.preview.medium }}"
+                                         class="img-thumbnail img-responsive previewimg glow">
+                                    <br><br>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">Bio / Info</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <span class="small">{{ streamerDetails.profile.bio }}</span>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
+
                     </div>
                 </div>
+            </div>
 
+            {% set i = i+1 %}
+            {% if i == 3 %}
+            {% set i = 0 %}
+        </div>
+        <div class="row">
+            {% endif %}
             {% endfor %}
 
         </div>
     </div>
+
 {% endblock %}

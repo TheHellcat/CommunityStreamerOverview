@@ -18,7 +18,6 @@ class DefaultController extends Controller
         $streamerService = $this->get('service_streamer');
 
         $streamerData = $streamerService->getCommunityStreamers();
-dump($streamerData);
 
         return [
             'streamerData' => $streamerData
@@ -37,7 +36,6 @@ dump($streamerData);
         $success = false;
         $message = '';
 
-//        $redirUrl = 'http://live.hellcat.net/twitch-manager/auth.php'; //$this->generateUrl('twitch_auth');
         $redirUrl = $request->getSchemeAndHttpHost() . $this->generateUrl('app_streamer_add');
 
         if ($request->query->has('code')) {
