@@ -1,6 +1,6 @@
 imports:
     - { resource: config.yml }
-    - { resource: parameters_hcwww2.yml }
+    - { resource: parameters_hcwww3.yml }
 
 monolog:
     handlers:
@@ -19,5 +19,5 @@ monolog:
 
 hellcat_twitch_api:
     api_endpoint_root: https://api.twitch.tv/kraken
-    client_id: "%strovw_twitch_api_client_id%"
-    client_secret: "%strovw_twitch_api_secret%"
+    client_id: "%env(STROVW_TWITCH_API_CLIENT_ID)%"
+    client_secret: "%env(STROVW_TWITCH_API_SECRET)%"
