@@ -50,12 +50,37 @@ class Twitch
 
         $this->httpClient = new HttpClient();
 
+        $config = $this->fixSerializedData($config);
+
         $configModel = unserialize($config);
         if ($configModel instanceof Configuration) {
             $this->config = $configModel;
         } else {
             $this->config = new Configuration([]);
         }
+    }
+
+    /**
+     * This function recalculates the sizes/lengths of the serialized elements
+     * in a string of serialized() data.
+     *
+     * It unfortunately necessary due to Symfony only putting placeholders into the configuration parameters,
+     * when using "%env(XXXX)%" values to fetch the actual value from the environment variables
+     * (for security reasons), and then when actually passing or returning them replacing them with the actual
+     * values - which corrupts serialized data based on those values.
+     *
+     * @param string $data
+     * @return string mixed
+     */
+    private function fixSerializedData($data)
+    {
+        $fixedData = preg_replace_callback(
+            '/s:([0-9]+):\"(.*?)\";/',
+            function ($matches) { return "s:".strlen($matches[2]).':"'.$matches[2].'";'; },
+            $data
+        );
+
+        return $fixedData;
     }
 
     /**
