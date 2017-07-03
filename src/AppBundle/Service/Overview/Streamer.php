@@ -72,7 +72,7 @@ class Streamer
             $streamerDetails['profile'] = $this->fetchProfileData($streamer->getChannelName());
 //            $streamerDetails['profile'] = $this->fetchProfileData($streamer->getTwitchUserId());
             $streamerDetails['uptime'] = null === $streamData->getStream() ? '0m' : $this->calcUptime($streamData->getStream());
-            if($streamerDetails['isLive']) {
+            if ($streamerDetails['isLive']) {
                 $streamerDataLive[strtolower($streamer->getChannelName())] = $streamerDetails;
             } else {
                 $streamerDataOffline[strtolower($streamer->getChannelName())] = $streamerDetails;
@@ -105,9 +105,9 @@ class Streamer
 
         // make the bare seconds into something more readably nice
         $mins = ($upSeconds - ($upSeconds % 60)) / 60;  // looking weird? yeah, it's a mathematical perfect way of getting
-                                                        // a guaranteed "integer" without needing to cast and having weird
-                                                        // side effects / wrong numbers due to roundings or other things
-                                                        // a cast from float/double to integer may cause.
+        // a guaranteed "integer" without needing to cast and having weird
+        // side effects / wrong numbers due to roundings or other things
+        // a cast from float/double to integer may cause.
         // some more simple number juggling to get hours and minutes
         $minsR = $mins % 60;
         $minsH = $mins - ($minsR);

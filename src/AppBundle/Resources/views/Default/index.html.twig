@@ -17,7 +17,6 @@
 
                         <div class="row">
                             <div class="liveindicator">
-                                <br>
                                 {% if streamerDetails.isLive %}
                                     <span class="label label-success" style="font-size: 16px;">LIVE</span>&nbsp;&nbsp;
                                     <span class="badge">{{ streamerDetails.data.stream.viewers }}</span>
@@ -25,7 +24,6 @@
                                     <em>{{ streamerDetails.uptime }}</em>
                                 {% else %}
                                     <span class="label label-danger" style="font-size: 16px;">OFFLINE</span>
-                                    <br><br>
                                 {% endif %}
                             </div>
                             <div class="col-lg-5 col-xs-6">
@@ -34,9 +32,7 @@
                             </div>
                             <div class="col-lg-7 col-xs-12">
                                 {% if streamerDetails.isLive %}
-                                    <br>
                                     <span class="small"><strong>Playing:</strong></span>
-                                    <br>
                                     {{ streamerDetails.data.stream.channel.game }}
                                 {% endif %}
                             </div>
@@ -44,9 +40,7 @@
                         <div class="row">
                             <div class="col-xs-12">
                                 {% if streamerDetails.isLive %}
-                                    <br>
                                     <strong>{{ streamerDetails.data.stream.channel.status }}</strong>
-                                    <br><br>
                                 {% endif %}
                             </div>
                         </div>
@@ -55,7 +49,6 @@
                                 <a class="btn btn-info btn-block"
                                    href="https://www.twitch.tv/{{ streamerDetails.profile.name }}" target="_blank">Go to
                                     Channel</a>
-                                <br>
                             </div>
                         </div>
                         <div class="row">
@@ -63,7 +56,6 @@
                                 {% if streamerDetails.isLive %}
                                     <img src="{{ streamerDetails.data.stream.preview.medium }}"
                                          class="img-thumbnail img-responsive previewimg glow">
-                                    <br><br>
                                 {% endif %}
                             </div>
                         </div>

@@ -39,10 +39,42 @@
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
+
+<nav class="navbar navbar-inverse">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#"><em>Community Streamers</em></a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="{{ path('app_default_index') }}">Overview</a></li>
+                <li><a href="#">Week Schedule</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">Your Profile <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ path('app_streamer_add') }}">Add me to the list</a></li>
+                        <li><a href="#">Edit my week schedule</a></li>
+                        <li><a href="#">Remove me from the list</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
 {% block body %}{% endblock %}
 
 <script src="js/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
+
 {% block javascripts %}{% endblock %}
+
 </body>
 </html>
