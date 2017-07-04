@@ -3,6 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Class TwitchChannels
@@ -25,7 +26,9 @@ class TwitchChannels
     private $id;
 
     /**
-     * @ORM\Column(name="twitch_user_id", type="string", length=64)
+     * @ORM\Column(name="twitch_user_id", type="integer")
+     *
+     * // TODO: make this column "unique"
      *
      * @var integer
      */
@@ -44,6 +47,13 @@ class TwitchChannels
      * @var integer
      */
     private $added;
+
+    /**
+     * @ORM\OneToMany(targetEntity="TwitchSchedules", mappedBy="localChannelId")
+     *
+     * @var TwitchSchedules[]|ArrayCollection
+     */
+    private $schedule;
 
     /**
      * @return mixed
@@ -115,5 +125,28 @@ class TwitchChannels
     {
         $this->added = $added;
         return $this;
+    }
+
+    /**
+     * @return TwitchSchedules[]|ArrayCollection
+     */
+    public function getSchedule()
+    {
+        return $this->schedule;
+    }
+
+    /**
+     * @param TwitchSchedules[]|ArrayCollection $schedule
+     * @return TwitchChannels
+     */
+    public function setSchedule($schedule)
+    {
+        $this->schedule = $schedule;
+        return $this;
+    }
+
+    public function addSchedule($schedule)
+    {
+        // TODO: do it
     }
 }
