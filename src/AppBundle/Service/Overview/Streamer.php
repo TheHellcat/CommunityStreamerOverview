@@ -139,7 +139,11 @@ class Streamer
      */
     private function fetchStreamData(TwitchChannelsEntity $twitchUser)
     {
-        if ((null === $twitchUser->getTwitchUserId()) || (strlen($twitchUser->getTwitchUserId()) == 0)) {
+        if (
+            (null === $twitchUser->getTwitchUserId())
+            || (strlen($twitchUser->getTwitchUserId()) == 0)
+            || ($twitchUser->getTwitchUserId() == 0)
+        ) {
             $userData = $this->twitchApi->users()->getUserByName($twitchUser->getChannelName());
             $userId = $userData->getUsers()->first()->getId();
 
