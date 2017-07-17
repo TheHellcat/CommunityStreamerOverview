@@ -182,7 +182,7 @@ class TwitchSchedules
     }
 
     /**
-     * @return mixed
+     * @return TwitchChannels
      */
     public function getTwitchUser()
     {
@@ -190,7 +190,7 @@ class TwitchSchedules
     }
 
     /**
-     * @param mixed $twitchUser
+     * @param TwitchChannels $twitchUser
      * @return TwitchSchedules
      */
     public function setTwitchUser($twitchUser)

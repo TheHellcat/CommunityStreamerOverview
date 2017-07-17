@@ -161,7 +161,7 @@ class Streamer
      */
     public function addStreamer(TwitchUserData $twitchUser)
     {
-        // TODO: add only if user doesn't exist already
+        // TODO: only add if user doesn't already exist
         $newUser = new TwitchChannelsEntity();
 
         $newUser
@@ -171,5 +171,18 @@ class Streamer
 
         $this->dbManager->persist($newUser);
         $this->dbManager->flush();
+    }
+
+    /**
+     * @param $twitchUserId
+     * @return TwitchChannelsEntity|null
+     */
+    public function fetchLocalChannelData($twitchUserId)
+    {
+        return $this->dbManager->getRepository(TwitchChannelsEntity::class)->findOneBy(
+            [
+                'twitchUserId' => $twitchUserId
+            ]
+        );
     }
 }

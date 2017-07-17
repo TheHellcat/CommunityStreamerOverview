@@ -8,6 +8,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use AppBundle\Form\AddScheduleType;
+use AppBundle\Model\Form\AddSchedule;
+use AppBundle\Entity\TwitchChannels;
+use AppBundle\Entity\TwitchSchedules;
 
 class DefaultController extends Controller
 {
@@ -32,28 +35,67 @@ class DefaultController extends Controller
      */
     public function editScheduleAction(Request $request)
     {
+        $authData = $this->authenticate($request);
+        if( (!$authData['success']) && (null !== $authData['redirect'])) {
+            return $authData['redirect'];
+        }
+
+        $streamerService = $this->get('service_streamer');
+        $doctrine = $this->get('doctrine');
+
+        /** @var TwitchChannels $channelData */
+        $channelData = $streamerService->fetchLocalChannelData( $authData['twitchUserId'] );
+
         $form = $this->createForm(AddScheduleType::class, null, []);
 
         $form->handleRequest($request);
 
         if( $form->isSubmitted() && $form->isValid() ) {
+            /** @var AddSchedule $formData */
             $formData = $form->getData();
-dump($formData);
+
+            $newSchedule = $channelData->getNewSchedule();
+            $newSchedule
+                ->setDayOfWeek($formData->getDayOfWeek())
+                ->setTimeStart($formData->getTimeStart())
+                ->setTimeEnd($formData->getTimeEnd())
+                ->setTopic($formData->getTopic())
+                ->setTwitchUserId($authData['twitchUserId'])
+                ->setTwitchUser( $channelData );
+
+            $doctrine->getManager()->persist( $newSchedule );
+            $doctrine->getManager()->flush();
+        }
+
+        // TODO: move this into own action like /editschedule/delete/XXXXXX
+        // 'cause diz aint f'ing RESTful - nuff sed :-p
+        if( $request->query->has( 'deleteEntry' ) ) {
+            $scheduleEntry = $doctrine->getManager()->getRepository(TwitchSchedules::class)->findOneBy(
+                [
+                    'id' => $request->query->get('deleteEntry')
+                ]
+            );
+
+            if( null !== $scheduleEntry ) {
+                $doctrine->getManager()->remove($scheduleEntry);
+                $doctrine->getManager()->flush();
+            }
         }
 
         return [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'channelData' => $channelData
         ];
     }
 
     /**
      * @Route("/add", name="app_streamer_add")
      * @Template()
+     * @NeedsTwitchUser()
      */
     public function addAction(Request $request)
     {
         $authData = $this->authenticate($request);
-
         if( (!$authData['success']) && (null !== $authData['redirect'])) {
             return $authData['redirect'];
         }

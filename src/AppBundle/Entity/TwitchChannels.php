@@ -49,7 +49,7 @@ class TwitchChannels
     private $added;
 
     /**
-     * @ORM\OneToMany(targetEntity="TwitchSchedules", mappedBy="localChannelId")
+     * @ORM\OneToMany(targetEntity="TwitchSchedules", mappedBy="twitchUser")
      *
      * @var TwitchSchedules[]|ArrayCollection
      */
@@ -145,8 +145,24 @@ class TwitchChannels
         return $this;
     }
 
+    /**
+     * @param $schedule
+     * @return $this
+     */
     public function addSchedule($schedule)
     {
-        // TODO: do it
+//        if (!$this->schedule->contains($schedule)) {
+            $this->schedule->add($schedule);
+//        }
+
+        return $this;
+    }
+
+    /**
+     * @return TwitchSchedules
+     */
+    public function getNewSchedule()
+    {
+        return new TwitchSchedules();
     }
 }

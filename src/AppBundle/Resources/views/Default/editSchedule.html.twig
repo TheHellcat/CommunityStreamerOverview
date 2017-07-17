@@ -2,6 +2,16 @@
 
 {% block body %}
 
+    <ul>
+        {% for entry in channelData.schedule %}
+            <li>
+                {{ entry.dayOfWeek }} : {{ entry.timeStart }} - {{ entry.timeEnd }} : {{ entry.topic }}
+                [ <a href="{{ path('app_schedule_edit', {'deleteEntry': entry.id}) }}">Delete</a> ]
+            </li>
+        {% endfor %}
+    </ul>
+    <hr>
+
     {{ form_start(form) }}
     {{ form_widget(form) }}
     {{ form_end(form) }}
