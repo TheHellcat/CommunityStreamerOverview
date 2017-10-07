@@ -1,0 +1,56 @@
+{% extends "::base.html.twig" %}
+
+{% block body %}
+
+    <div id='calendar'></div>
+
+{% endblock %}
+
+
+
+{% block stylesheets %}
+
+    <link href="css/fullcalendar.min.css" rel="stylesheet">
+    <style>
+        #calendar {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .fc-view {
+            background-color: #ffffff;
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+
+    <script src="js/moment-with-locales.min.js"></script>
+    <script src="js/fullcalendar.min.js"></script>
+    <script>
+        $(document).ready(function() {
+
+            /* Fullcalendar.js */
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,basicWeek,basicDay'
+                },
+                defaultView: "month",
+                navLinks: true, // can click day/week names to navigate views
+                events: [
+                    {% for data in scheduleList %}
+                    {
+                        title:  "{{ data.title|raw }}",
+                        start:  "{{ data.start }}",
+                        end:    "{{ data.end }}"
+                    },
+                    {% endfor %}
+                    {}
+                ]
+            });
+
+        });
+
+    </script>
+{% endblock %}

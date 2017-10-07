@@ -87,11 +87,60 @@ class DefaultController extends Controller
             'channelData' => $channelData
         ];
     }
+	
+	/**
+	 * @Route("/showschedule", name="app_schedule_show")
+	 * @Template()
+	 */
+    public function showScheduleAction(Request $request) {
+		$doctrine = $this->get('doctrine');
+		$twitchChannel = $doctrine->getRepository(TwitchChannels::class);
+		
+		// List of all Days
+		$dayList = $this->getDaysOfMonths(date("Y"), date("m"), 1, 1);
+		
+		// List of all events
+		$scheduleList = [];
+		
+		// Load and iterate all Schedule to convert in new format
+		$streamerScheduleList = $doctrine->getRepository(TwitchSchedules::class)->findAll();
+		foreach ($streamerScheduleList AS $streamScheduleItem) {
+			
+			$channelData = $twitchChannel->findOneBy([
+				"id" => $streamScheduleItem->getLocalChannelId()
+			]);
+			
+			foreach ($dayList AS $day) {
+				if ($day["weekday"] == $streamScheduleItem->getDayOfWeek()) {
+				
+					// Make hour with 0 begin
+					$startHour	= $streamScheduleItem->getTimeStart();
+					$endHour	= $streamScheduleItem->getTimeEnd();
+					if ($startHour < 10) {
+						$startHour = "0".$startHour;
+					}
+					if ($endHour < 10) {
+						$endHour = "0".$endHour;
+					}
+				
+					// Save Date in calendar format
+					$scheduleList[] = [
+						"title"		=> $channelData->getChannelName()." > ".$streamScheduleItem->getTopic(),
+						"start"		=> $day["year"]."-".$day["month"]."-".$day["day"]."T".$startHour.":00:00",
+						"end"		=> $day["year"]."-".$day["month"]."-".$day["day"]."T".$endHour.":00:00",
+					];
+				}
+			}
+		}
+		
+		return [
+			'scheduleList' => $scheduleList
+		];
+	}
 
     /**
      * @Route("/add", name="app_streamer_add")
      * @Template()
-     * @NeedsTwitchUser()
      */
     public function addAction(Request $request)
     {
@@ -160,4 +209,58 @@ class DefaultController extends Controller
 
         return $returnArray;
     }
+	
+	/**
+	 * Get Dates of a range
+	 * @param	integer|string 	$year			Start year
+	 * @param	integer|string 	$month			Start month
+	 * @param 	integer			$monthBefor		Amount how many month befor the range sould be start
+	 * @param	integer			$monthAfter		Amount how many month after the range sould be end
+	 * @return	array							List if all Dates in the range in format => ['year','month','day','weekday']
+	 */
+	private function getDaysOfMonths($year, $month, $monthBefor, $monthAfter) {
+    	
+    	$days = [];
+    	for ($i=($month-$monthBefor); $i<=($month+$monthAfter); $i++) {
+    		$currentYear	= $year;
+    		$currentMonth	= $i;
+    		
+    		if ($i < 1) {
+    			$currentYear--;
+    			$currentMonth = (12-($i*1));
+			}
+			if ($i > 12) {
+				$currentYear++;
+				$currentMonth = ($i-12);
+			}
+		
+			$_days = cal_days_in_month(CAL_GREGORIAN, $currentMonth, $currentYear);
+    		for ($d=1; $d<=$_days; $d++) {
+    		
+    			// Get weekday of date (monday = 0, sunday = 6)
+				$weekday = (date("w", strtotime($currentYear."-".$currentMonth."-".$d))-1);
+				if ($weekday < 0) {
+					$weekday = 6;
+				}
+    
+				// Month and day begin with 0
+				if ($currentMonth < 10 && strlen($currentMonth) < 2) {
+					$currentMonth = "0".$currentMonth;
+				}
+				if ($d < 10) {
+					$d = "0".$d;
+				}
+				
+				// Save Datedata
+				$days[] = [
+					"year"		=> $currentYear,
+					"month"		=> $currentMonth,
+					"day"		=> $d,
+					"weekday"	=> $weekday
+				];
+			}
+		}
+
+		return $days;
+	}
 }
